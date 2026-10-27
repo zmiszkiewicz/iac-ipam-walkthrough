@@ -6,3 +6,4 @@
 name_prefix    = "iac"
 aws_region     = "eu-central-1"
 azure_location = "northeurope"
+relay_vm_size  = "Standard_D2s_v3"

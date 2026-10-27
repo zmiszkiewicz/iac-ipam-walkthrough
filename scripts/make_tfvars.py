@@ -77,6 +77,7 @@ def main():
             "name_prefix": os.getenv("LAB_NAME_PREFIX", "iac"),
             "aws_region": os.getenv("AWS_DEFAULT_REGION", "eu-central-1"),
             "azure_location": os.getenv("LAB_AZURE_LOCATION", "northeurope"),
+            "relay_vm_size": os.getenv("LAB_RELAY_VM_SIZE", "Standard_D2s_v3"),
         }, header)
         return 0
 

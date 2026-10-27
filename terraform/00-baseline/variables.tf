@@ -43,7 +43,7 @@ variable "allowed_cidrs" {
 # --- Azure (hub VNet, DNS relay, Private DNS zones, storage) ----------------
 
 variable "azure_location" {
-  description = "Azure region. northeurope is the region the Instruqt subscription allows."
+  description = "Azure region. Must be one of the regions listed for the Instruqt subscription in the track config.yml."
   type        = string
   default     = "northeurope"
 }
@@ -69,8 +69,9 @@ variable "relay_private_ip" {
 }
 
 variable "relay_vm_size" {
-  type    = string
-  default = "Standard_DS1_v2"
+  description = "Size of the DNS relay VM. If Azure reports SkuNotAvailable for a size in the chosen region, pick another."
+  type        = string
+  default     = "Standard_D2s_v3"
 }
 
 variable "relay_allowed_cidrs" {
