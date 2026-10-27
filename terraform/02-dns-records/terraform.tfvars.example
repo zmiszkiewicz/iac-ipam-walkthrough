@@ -1,0 +1,7 @@
+# The track's setup script writes terraform.tfvars for you. Credentials are not
+# set here; export INFOBLOX_SERVER, INFOBLOX_USERNAME and INFOBLOX_PASSWORD.
+domain        = "examplecorp.test"
+app_ip        = "10.30.0.50"
+record_ttl    = 300
+cname_aliases = ["shop"]
+owner         = "app-team"

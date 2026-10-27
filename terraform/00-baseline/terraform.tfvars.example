@@ -1,0 +1,8 @@
+# Copy to terraform.tfvars (the track's setup script generates this for you).
+# Secrets are NOT set here. Export them instead:
+#   export TF_VAR_nios_admin_password='...'
+#   export AWS_ACCESS_KEY_ID=... AWS_SECRET_ACCESS_KEY=...
+#   export ARM_CLIENT_ID=... ARM_CLIENT_SECRET=... ARM_SUBSCRIPTION_ID=... ARM_TENANT_ID=...
+name_prefix    = "iac"
+aws_region     = "eu-central-1"
+azure_location = "northeurope"

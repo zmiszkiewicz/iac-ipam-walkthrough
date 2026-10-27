@@ -1,0 +1,16 @@
+# Terraform
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+crash.log
+terraform.tfvars
+*.auto.tfvars
+!solutions/**/*.auto.tfvars
+
+# Generated at run time by the track's lifecycle scripts
+*.pem
+.state/
+.test-state/
+__pycache__/
+*.pyc

@@ -1,0 +1,5 @@
+# The track's setup script writes terraform.tfvars for you.
+domain           = "examplecorp.test"
+find_cloud       = "Azure"
+find_environment = "Production"
+supernet_cidr    = "10.40.0.0/16"

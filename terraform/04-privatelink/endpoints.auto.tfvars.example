@@ -1,0 +1,8 @@
+# Copy to endpoints.auto.tfvars. Three private endpoints across two storage
+# accounts and two namespaces: note that blob serves both accounts from ONE
+# NIOS forward zone.
+private_endpoints = {
+  "sa-a-blob" = { account = "a", subresource = "blob" }
+  "sa-b-blob" = { account = "b", subresource = "blob" }
+  "sa-a-file" = { account = "a", subresource = "file" }
+}

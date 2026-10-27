@@ -1,0 +1,7 @@
+# Copy to requests.auto.tfvars. This file IS the request: each entry is one
+# subnet, and Infoblox decides where it goes.
+subnet_requests = {
+  "app-tier"  = { prefix_len = 24, comment = "Application tier" }
+  "data-tier" = { prefix_len = 25, comment = "Data tier" }
+  "mgmt"      = { prefix_len = 26, comment = "Management" }
+}

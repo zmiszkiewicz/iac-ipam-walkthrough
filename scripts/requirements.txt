@@ -1,0 +1,4 @@
+# Installed by the track's setup-shell into the Instruqt shell container.
+requests>=2.31
+urllib3>=1.26
+boto3>=1.34

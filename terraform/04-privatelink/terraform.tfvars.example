@@ -1,0 +1,21 @@
+# The track's setup script writes terraform.tfvars for you, using outputs from
+# terraform/00-baseline. Shape shown here for running the code elsewhere.
+domain               = "examplecorp.test"
+nios_member_hostname = "infoblox.localdomain"
+relay_ip             = "203.0.113.10"
+resource_group_name  = "rg-iac-hub"
+location             = "northeurope"
+endpoints_subnet_id  = "/subscriptions/<id>/resourceGroups/rg-iac-hub/providers/Microsoft.Network/virtualNetworks/vnet-iac-hub/subnets/snet-private-endpoints"
+privatelink_zone_ids = {
+  blob  = "/subscriptions/<id>/resourceGroups/rg-iac-hub/providers/Microsoft.Network/privateDnsZones/privatelink.blob.core.windows.net"
+  file  = "/subscriptions/<id>/resourceGroups/rg-iac-hub/providers/Microsoft.Network/privateDnsZones/privatelink.file.core.windows.net"
+  queue = "/subscriptions/<id>/resourceGroups/rg-iac-hub/providers/Microsoft.Network/privateDnsZones/privatelink.queue.core.windows.net"
+}
+storage_account_ids = {
+  a = "/subscriptions/<id>/resourceGroups/rg-iac-hub/providers/Microsoft.Storage/storageAccounts/stiacxxxxxxxxa"
+  b = "/subscriptions/<id>/resourceGroups/rg-iac-hub/providers/Microsoft.Storage/storageAccounts/stiacxxxxxxxxb"
+}
+storage_account_names = {
+  a = "stiacxxxxxxxxa"
+  b = "stiacxxxxxxxxb"
+}
