@@ -9,6 +9,9 @@ Terraform provider reads:
   INFOBLOX_PASSWORD  NIOS admin password
   WAPI_VERSION       defaults to 2.12.3 (a leading "v" is optional)
   WAPI_SCHEME        https (default); the offline tests use http
+  WAPI_RETRY_SECONDS how long a call keeps retrying when the grid drops the
+                     connection (default 240). A booting vNIOS restarts its web
+                     service after it first answers, so this is routine.
 
 2.12.3 is the WAPI version the Terraform provider is built against. Staying on
 it keeps every call in this lab valid on a NIOS 8.6 grid, and newer grids still
@@ -29,6 +32,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 DEFAULT_WAPI = "2.12.3"
 FALLBACK_VERSIONS = ["2.12", "2.13.1", "2.13", "2.14"]
+RETRY_STATUSES = (502, 503, 504)
 
 
 class WapiError(RuntimeError):
@@ -75,6 +79,7 @@ class NiosWapi:
         self.scheme = os.getenv("WAPI_SCHEME", "https")
         self.version = normalize_version(version)
         self.timeout = timeout
+        self.retry_seconds = float(os.getenv("WAPI_RETRY_SECONDS", "240"))
         self.session = requests.Session()
         self.session.auth = (username, password)
         self.session.verify = False
@@ -100,12 +105,29 @@ class NiosWapi:
 
     def _request(self, method, path, params=None, payload=None):
         url = path if path.startswith("http") else f"{self.base}/{path}"
-        try:
-            resp = self.session.request(
-                method, url, params=params, json=payload, timeout=self.timeout
-            )
-        except requests.exceptions.RequestException as exc:
-            raise WapiError(f"{method} {url}: {exc.__class__.__name__}: {exc}") from exc
+        deadline = time.time() + self.retry_seconds
+        delay = 2
+        while True:
+            try:
+                resp = self.session.request(
+                    method, url, params=params, json=payload, timeout=self.timeout
+                )
+            except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as exc:
+                # Connection reset or refused: the web service is restarting.
+                if time.time() + delay > deadline:
+                    raise WapiError(f"{method} {url}: {exc.__class__.__name__}: {exc}") from exc
+                print(f"  (grid not answering, retrying in {delay}s: {exc.__class__.__name__})")
+                time.sleep(delay)
+                delay = min(delay * 2, 15)
+                continue
+            except requests.exceptions.RequestException as exc:
+                raise WapiError(f"{method} {url}: {exc.__class__.__name__}: {exc}") from exc
+            if resp.status_code in RETRY_STATUSES and time.time() + delay <= deadline:
+                print(f"  (grid returned HTTP {resp.status_code}, retrying in {delay}s)")
+                time.sleep(delay)
+                delay = min(delay * 2, 15)
+                continue
+            break
         if not 200 <= resp.status_code < 300:
             raise WapiError(
                 f"{method} {path}: HTTP {resp.status_code}: {resp.text[:300]}",

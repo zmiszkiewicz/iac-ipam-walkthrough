@@ -59,6 +59,60 @@ class HelperTests(unittest.TestCase):
         self.assertEqual(hcl({"a-b": "2"}), '{\n  a-b = "2"\n}')
 
 
+class TfvarsTests(unittest.TestCase):
+    def test_keep_existing_does_not_overwrite_edits(self):
+        import tempfile
+        import make_tfvars
+        tmp = Path(tempfile.mkdtemp())
+        (tmp / "x").mkdir()
+        make_tfvars.TERRAFORM, make_tfvars.REPO_ROOT = tmp, tmp
+        try:
+            make_tfvars.KEEP_EXISTING = True
+            make_tfvars.write_tfvars("x", {"a": 1}, ["h"])          # missing: written
+            target = tmp / "x" / "terraform.tfvars"
+            self.assertEqual(target.read_text().splitlines()[-1], "a = 1")
+            target.write_text("a = 99\n")                           # a presenter's edit
+            make_tfvars.write_tfvars("x", {"a": 1}, ["h"])          # present: kept
+            self.assertEqual(target.read_text(), "a = 99\n")
+            make_tfvars.KEEP_EXISTING = False
+            make_tfvars.write_tfvars("x", {"a": 1}, ["h"])          # normal mode overwrites
+            self.assertIn("a = 1", target.read_text())
+        finally:
+            make_tfvars.KEEP_EXISTING = False
+
+
+class RetryTests(unittest.TestCase):
+    """A booting vNIOS drops connections once after its first answer."""
+
+    def _api(self, side_effects):
+        import requests
+        from unittest import mock
+        api = NiosWapi("203.0.113.1", "admin", "x")
+        api.retry_seconds = 60
+        ok = mock.Mock(status_code=200, content=b"[]")
+        ok.json.return_value = []
+        responses = [requests.exceptions.ConnectionError("reset") if e == "drop" else ok
+                     for e in side_effects]
+        api.session.request = mock.Mock(side_effect=responses)
+        return api
+
+    def test_recovers_after_dropped_connections(self):
+        from unittest import mock
+        api = self._api(["drop", "drop", "ok"])
+        with mock.patch("nios_wapi.time.sleep"):
+            self.assertEqual(api.get("network"), [])
+        self.assertEqual(api.session.request.call_count, 3)
+
+    def test_gives_up_when_the_grid_stays_down(self):
+        from unittest import mock
+        api = self._api(["drop"] * 50)
+        api.retry_seconds = 5
+        with mock.patch("nios_wapi.time.sleep"), mock.patch(
+                "nios_wapi.time.time", side_effect=[0, 0, 3, 3, 6, 6, 9, 9]):
+            with self.assertRaises(WapiError):
+                api.get("network")
+
+
 class ScriptTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

@@ -282,4 +282,9 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except WapiError as exc:
+        print(f"  [FAIL] {exc}")
+        print("         The seed is safe to run again; it skips what already exists.")
+        sys.exit(1)
