@@ -59,6 +59,15 @@ class HelperTests(unittest.TestCase):
         self.assertEqual(hcl({"a-b": "2"}), '{\n  a-b = "2"\n}')
 
 
+class DiagnoseTests(unittest.TestCase):
+    def test_classify_answers(self):
+        from diagnose_privatelink import classify
+        public = ["a.privatelink.blob.core.windows.net.", "blob.x.store.core.windows.net.", "20.60.205.164"]
+        self.assertEqual(classify(public)[0], "public")
+        self.assertEqual(classify(["a.privatelink.blob.core.windows.net.", "10.200.1.6"])[0], "private")
+        self.assertEqual(classify([])[0], "none")
+
+
 class TfvarsTests(unittest.TestCase):
     def test_keep_existing_does_not_overwrite_edits(self):
         import tempfile

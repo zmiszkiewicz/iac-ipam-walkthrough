@@ -92,7 +92,7 @@ def stage_privatelink(api):
     unresolved = [n for n in names.values() if not any(ip.startswith("10.200.") for ip in dig(api.host, n))]
     if unresolved:
         raise Check(f"{unresolved[0]} did not resolve to a private 10.200.x.x address through the grid. "
-                    "Check the forward zones and that the DNS relay VM has finished booting.")
+                    "Run restart_dns.py so the grid applies the forward zones, then check again.")
 
 
 STAGES = {"baseline": stage_baseline, "dns": stage_dns, "ipam": stage_ipam, "privatelink": stage_privatelink}

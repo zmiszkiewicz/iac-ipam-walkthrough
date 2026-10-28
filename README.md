@@ -40,6 +40,8 @@ Each stage folder is an independent Terraform root with its own state, `variable
 | `find_networks.py` | Find subnets by extensible attribute or by containing supernet. |
 | `container_report.py` | Allocated and free space per supernet, and the largest free block. |
 | `next_available.py` | Next free network of a given size, or next free IPs, **without allocating**. |
+| `diagnose_privatelink.py` | Shows how each forward zone is configured and what every private endpoint name resolves to, with the likely cause when it is wrong. |
+| `restart_dns.py` | Restarts DNS on the grid (applies pending changes, clears the cache) and waits until it answers. |
 | `verify_lab.py` | Reads state back from the grid for the track's check scripts (`--stage baseline|dns|ipam|privatelink`). |
 | `azure_arm.py` | Lists private endpoints with the sandbox service principal (no `az` CLI needed). |
 | `setup_dns.py`, `cleanup_dns_records.py` | Publish and remove the Grid Manager hostname in the shared demo zone. |

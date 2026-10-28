@@ -25,3 +25,9 @@ cp "${REPO}/solutions/${dir}/"*.tfvars "${REPO}/terraform/${dir}/"
 cd "${REPO}/terraform/${dir}"
 terraform init -input=false
 terraform apply -auto-approve -input=false "${flags[@]}"
+
+# New forward zones take effect after a DNS service restart (which also clears
+# the resolver cache), so finish challenge 4 by doing one.
+if [[ "${dir}" == "04-privatelink" ]]; then
+  python3 "${REPO}/scripts/restart_dns.py"
+fi
